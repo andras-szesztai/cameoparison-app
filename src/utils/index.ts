@@ -81,3 +81,9 @@ export function select(
 
     return selection
 }
+
+export const sleep = (ms: number) => {
+    return new Promise((fulfil) => {
+        setTimeout(fulfil, ms)
+    })
+}

@@ -1,6 +1,8 @@
 <script lang="ts">
     import Card from '../components/Card/Card.svelte'
 
+    import { sleep } from '../utils'
+
     import type { ICelebrity, ICelebrityDetail } from '../types/data'
 
     type TSign = -1 | 0 | 1
@@ -10,7 +12,7 @@
         b: ICelebrity
     }[]
 
-    const load_details = async (celeb: ICelebrity) => {
+    const loadDetails = async (celeb: ICelebrity) => {
         const res = await fetch(
             `https://cameo-explorer.netlify.app/celebs/${celeb.id}.json`
         )
@@ -20,19 +22,24 @@
     const promises: Promise<
         [ICelebrityDetail, ICelebrityDetail]
     >[] = selection.map((round) =>
-        Promise.all([load_details(round.a), load_details(round.b)])
+        Promise.all([loadDetails(round.a), loadDetails(round.b)])
     )
 
+    const results = Array<'right' | 'wrong'>(selection.length)
     let i = 0
+    let lastResult: 'right' | 'wrong' | null = null
 
-    function handleSubmit(
+    async function handleSubmit(
         a: ICelebrityDetail,
         b: ICelebrityDetail,
         sign: TSign
     ) {
-        const result = Math.sign(a.price - b.price) === sign ? 'right' : 'wrong'
+        lastResult = Math.sign(a.price - b.price) === sign ? 'right' : 'wrong'
         if (i < selection.length - 1) {
             i += 1
+            await sleep(1500)
+            results[i - 1] = lastResult
+            lastResult = null
         } else {
             // End the game
         }
@@ -66,8 +73,21 @@
     {/await}
 </div>
 
-<div class="results">
-    <p>Results will go here</p>
+{#if lastResult}
+    <img class="giant-result" alt={lastResult} src="/icons/{lastResult}.svg" />
+{/if}
+
+<div
+    class="results"
+    style="grid-template-columns: repeat({results.length}, 1fr)"
+>
+    {#each results as result}
+        <span class="result">
+            {#if result}
+                <img alt={result} src="/icons/{result}.svg" />
+            {/if}
+        </span>
+    {/each}
 </div>
 
 <style>
@@ -104,5 +124,36 @@
         .same {
             height: 8em;
         }
+    }
+
+    .giant-result {
+        position: fixed;
+        width: 50vmin;
+        height: 50vmin;
+        left: calc(50vw - 25vmin);
+        top: calc(50vh - 25vmin);
+        opacity: 0.5;
+    }
+
+    .results {
+        display: grid;
+        grid-gap: 0.2em;
+        width: 100%;
+        max-width: 320px;
+        margin: 1em auto 0 auto;
+    }
+    .result {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        padding: 0 0 100% 0;
+        transition: background 0.2s;
+        transition-delay: 0.2s;
+    }
+    .result img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
     }
 </style>
