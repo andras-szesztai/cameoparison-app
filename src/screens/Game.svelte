@@ -1,5 +1,9 @@
 <script lang="ts">
+    import Card from '../components/Card/Card.svelte'
+
     import type { ICelebrity, ICelebrityDetail } from '../types/data'
+
+    type TSign = -1 | 0 | 1
 
     export let selection: {
         a: ICelebrity
@@ -20,6 +24,19 @@
     )
 
     let i = 0
+
+    function handleSubmit(
+        a: ICelebrityDetail,
+        b: ICelebrityDetail,
+        sign: TSign
+    ) {
+        const result = Math.sign(a.price - b.price) === sign ? 'right' : 'wrong'
+        if (i < selection.length - 1) {
+            i += 1
+        } else {
+            // End the game
+        }
+    }
 </script>
 
 <header>
@@ -31,16 +48,17 @@
 
 <div class="game-container">
     {#await promises[i] then [a, b]}
-        {console.log(a)}
         <div class="game">
-            <div class="card-container">
-                {a.name}
+            <div>
+                <Card celeb={a} on:select={() => handleSubmit(a, b, 1)} />
             </div>
             <div>
-                <button class="same"> Same price </button>
+                <button class="same" on:click={() => handleSubmit(a, b, 0)}>
+                    Same price
+                </button>
             </div>
-            <div class="card-container">
-                {b.name}
+            <div>
+                <Card celeb={b} on:select={() => handleSubmit(a, b, -1)} />
             </div>
         </div>
     {:catch}
@@ -59,5 +77,32 @@
 
     .error {
         color: red;
+    }
+
+    .game {
+        display: grid;
+        grid-template-rows: 1fr 2em 1fr;
+        grid-gap: 0.5em;
+        width: 100%;
+        max-width: min(100%, 40vh);
+        height: 100%;
+        margin: 0 auto;
+    }
+
+    .game > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    @media (min-width: 640px) {
+        .game {
+            max-width: 100%;
+            grid-template-rows: none;
+            grid-template-columns: 1fr 8em 1fr;
+        }
+
+        .same {
+            height: 8em;
+        }
     }
 </style>
