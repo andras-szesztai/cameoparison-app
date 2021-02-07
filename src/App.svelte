@@ -61,7 +61,7 @@
     {#if state === 'welcome'}
         <Welcome on:select={start} />
     {:else if state === 'playing'}
-        <Game {selection} />
+        <Game {selection} on:restart={() => (state = 'welcome')} />
     {/if}
 </main>
 

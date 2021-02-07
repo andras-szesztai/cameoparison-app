@@ -1,8 +1,11 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte'
+
     import type { ICelebrityDetail } from '../../types/data'
 
     export let celeb: ICelebrityDetail
+    export let showPrice: boolean
+    export let winner: boolean
 
     const dispatch = createEventDispatcher<{ select: null }>()
 </script>
@@ -20,8 +23,13 @@
                 >
             </h2>
             <p class="type">{celeb.type}</p>
-        </div></button
-    >
+        </div>
+        {#if showPrice}
+            <div class="price" class:large={winner}>
+                <span>{celeb.price}</span>
+            </div>
+        {/if}
+    </button>
 </div>
 
 <style>
