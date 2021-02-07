@@ -1,4 +1,15 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte"
+  import { categories } from "../constants/categories"
+
+  const dispatch = createEventDispatcher<{ select: { slug: string } }>()
+
+  let selected = false
+
+  const handleSelect = (slug: string) => {
+    selected = true
+    dispatch("select", { slug })
+  }
 </script>
 
 <header>
@@ -10,6 +21,14 @@
     clips from everyone from Lindsay Lohan to Ice T.
   </p>
   <p>But who commands the highest price?</p>
+  <p>Pick a category to play a game:</p>
+  <div class="categories">
+    {#each categories as { label, slug }}
+      <button disabled={selected} on:click={() => handleSelect(slug)}
+        >{label}</button
+      >
+    {/each}
+  </div>
 </header>
 
 <style>

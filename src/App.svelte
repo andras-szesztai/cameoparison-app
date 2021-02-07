@@ -4,11 +4,15 @@
   import type { TState } from "./types/state"
 
   let state: TState = "welcome"
+
+  const start = (e: CustomEvent) => {
+    console.log(e)
+  }
 </script>
 
 <main>
   {#if state === "welcome"}
-    <Welcome />
+    <Welcome on:select={start} />
   {:else if state === "playing"}
     <p>Game screen</p>
   {/if}
