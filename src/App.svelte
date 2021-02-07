@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte'
     import Welcome from './screens/Welcome.svelte'
+    import Game from './screens/Game.svelte'
 
     import { select } from './utils'
 
@@ -8,7 +9,10 @@
     import type { TState } from './types/state'
 
     let state: TState = 'welcome'
-    let selection: any
+    let selection: {
+        a: ICelebrity
+        b: ICelebrity
+    }[]
 
     let celebs_promise: Promise<{
         celebs: ICelebrity[]
@@ -57,7 +61,7 @@
     {#if state === 'welcome'}
         <Welcome on:select={start} />
     {:else if state === 'playing'}
-        <p>Game screen</p>
+        <Game {selection} />
     {/if}
 </main>
 

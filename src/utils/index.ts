@@ -1,6 +1,6 @@
 import type { ICelebrity, TCategories } from '../types/data'
 
-export function pick_random(array: string[] | ICelebrity[]) {
+export function pick_random(array: ICelebrity[] | string[]) {
     const index = Math.floor(array.length * Math.random())
     return array[index]
 }
@@ -38,20 +38,32 @@ export function select(
         // remove a from the array so this person can't be picked again
         remove(filtered, ai)
 
-        let b
+        let b: ICelebrity
 
         // if this celeb has 'similar' celebs, decide whether to pick one
         const similar = a.similar.filter((id) => !seen.has(id))
         if (similar.length > 0 && Math.random() < 0.75) {
             const id = pick_random(similar)
             if (typeof id == 'string') {
-                b = lookup.get(id)
+                const bCelebrity = lookup.get(id)
+                if (bCelebrity) {
+                    b = bCelebrity
+                } else {
+                    b = a
+                }
+            } else {
+                b = a
             }
         }
 
         // otherwise pick someone at random
         else {
-            b = pick_random(filtered)
+            const bCelebrity = pick_random(filtered)
+            if (typeof bCelebrity != 'string') {
+                b = bCelebrity
+            } else {
+                b = a
+            }
         }
 
         selection.push({ a, b })
