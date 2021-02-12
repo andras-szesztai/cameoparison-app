@@ -17,11 +17,6 @@
 
     const dispatch = createEventDispatcher<{ restart: null }>()
 
-    // const [send, receive] = crossfade({
-    //     easing: eases.circInOut,
-    //     duration: 300,
-    // })
-
     const loadDetails = async (celeb: ICelebrity) => {
         const res = await fetch(
             `https://cameo-explorer.netlify.app/celebs/${celeb.id}.json`
