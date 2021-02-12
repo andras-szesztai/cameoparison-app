@@ -3,7 +3,7 @@
     import Welcome from './screens/Welcome.svelte'
     import Game from './screens/Game.svelte'
 
-    import { select } from './utils'
+    import { select, loadImage } from './utils'
 
     import type { ICelebrity, TCategories } from './types/data'
     import type { TState } from './types/state'
@@ -21,6 +21,8 @@
 
     onMount(() => {
         celebs_promise = load_celebs()
+        loadImage('/icons/right.svg')
+        loadImage('/icons/wrong.svg')
     })
 
     const start = async (e: CustomEvent<{ slug: TCategories }>) => {

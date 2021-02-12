@@ -1,9 +1,10 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte'
-
+    import { fly, scale } from 'svelte/transition'
+    import { elasticOut } from 'svelte/easing'
     import Card from '../components/Card/Card.svelte'
 
-    import { pick_random, sleep } from '../utils'
+    import { pick_random, sleep, loadImage } from '../utils'
 
     import type { ICelebrity, ICelebrityDetail } from '../types/data'
 
@@ -16,11 +17,18 @@
 
     const dispatch = createEventDispatcher<{ restart: null }>()
 
+    // const [send, receive] = crossfade({
+    //     easing: eases.circInOut,
+    //     duration: 300,
+    // })
+
     const loadDetails = async (celeb: ICelebrity) => {
         const res = await fetch(
             `https://cameo-explorer.netlify.app/celebs/${celeb.id}.json`
         )
-        return await res.json()
+        const details = await res.json()
+        await loadImage(details.image)
+        return details
     }
 
     const promises: Promise<
@@ -33,6 +41,7 @@
     let i = 0
     let lastResult: 'right' | 'wrong' | null = null
     let done = false
+    let ready = true
 
     async function handleSubmit(
         a: ICelebrityDetail,
@@ -74,15 +83,24 @@
 
 <div class="game-container">
     {#if done}
-        <div class="done">
+        <div
+            class="done"
+            in:scale={{ delay: 200, duration: 800, easing: elasticOut }}
+        >
             <strong>{score} point{score > 1 ? 's' : ''}</strong>
         </div>
         <p>{pickMessage(score / results.length)}</p>
         <button on:click={() => dispatch('restart')}>Back to main screen</button
         >
-    {:else}
+    {:else if ready}
         {#await promises[i] then [a, b]}
-            <div class="game">
+            <div
+                class="game"
+                in:fly={{ duration: 200, y: 20 }}
+                out:fly={{ duration: 200, y: -20 }}
+                on:outrostart={() => (ready = false)}
+                on:outroend={() => (ready = true)}
+            >
                 <div>
                     <Card
                         showPrice={!!lastResult}
@@ -112,7 +130,12 @@
 </div>
 
 {#if lastResult}
-    <img class="giant-result" alt={lastResult} src="/icons/{lastResult}.svg" />
+    <img
+        class="giant-result"
+        in:fly={{ x: 100, duration: 200 }}
+        alt={lastResult}
+        src="/icons/{lastResult}.svg"
+    />
 {/if}
 
 <div
